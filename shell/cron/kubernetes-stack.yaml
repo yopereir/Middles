@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shell-cron-deployment
+  labels:
+    app: shell-cron
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shell-cron
+  template:
+    metadata:
+      labels:
+        app: shell-cron
+    spec:
+      containers:
+      - name: shell-cron
+        image: shell-cron
+        imagePullPolicy: Never
+        command: ["/bin/sh", "-c", "--"]
+        args:
+          - |
+            apk update
+            chmod 700 -R /etc/cron.d/scripts
+            crontab /etc/cron.d/crons
+            crond -f
+        volumeMounts:
+        - name: cron-jobs
+          mountPath: /etc/cron.d/crons
+        - name: cron-scripts
+          mountPath: /etc/cron.d/scripts
+      volumes:
+      - name: cron-jobs
+        hostPath:
+          path: "$PWD/crons"
+          type: File
+      - name: cron-scripts
+        hostPath:
+          path: "$PWD/scripts"
+          type: Directory

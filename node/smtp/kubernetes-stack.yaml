@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: smtp-deployment
+  name: node-smtp-deployment
   labels:
-    app: smtp
+    app: node-smtp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: smtp
+      app: node-smtp
   template:
     metadata:
       labels:
-        app: smtp
+        app: node-smtp
     spec:
       containers:
-      - name: smtp
-        image: smtp
+      - name: node-smtp
+        image: node-smtp
         imagePullPolicy: Never
         ports:
         - containerPort: 2525
@@ -24,10 +24,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: smtp
+  name: node-smtp
 spec:
   selector:
-    app: smtp
+    app: node-smtp
   ports:
     - protocol: TCP
       port: 587

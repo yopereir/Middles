@@ -1,0 +1,2 @@
+# Every minute, this script runs
+* * * * * /etc/cron.d/scripts/test.sh 2>> /var/log/errors

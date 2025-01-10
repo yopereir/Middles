@@ -1,0 +1,21 @@
+{
+  "name": "stripe",
+  "version": "1.0.0",
+  "description": "middleware to work with Stripe payment API",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "stripe": "^17.5.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

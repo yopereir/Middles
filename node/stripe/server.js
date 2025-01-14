@@ -13,15 +13,15 @@ async function getPriceForProduct(productId) {
 }
 
 // Middleware setup
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "frontend-test")));
+//app.use(bodyParser.json()); // enabling this will fail webhook validation
+app.use(express.static(path.join(__dirname, "frontend")));
 
 // Fetch product and price details using Lookup Key
-app.get("/product-info", async (req, res) => {
+app.get("/product-info", bodyParser.json(), async (req, res) => {
   try {
     const productId = req.query.productId || req.query.productid
     const product = await stripe.products.retrieve(productId);
-    const price = getPriceForProduct(productId);
+    const price = await getPriceForProduct(productId);
     res.json({
       name: product.name,
       description: product.description,
@@ -36,7 +36,7 @@ app.get("/product-info", async (req, res) => {
 });
 
 // Endpoint to handle payment
-app.post("/create-checkout-session", async (req, res) => {
+app.post("/create-checkout-session", bodyParser.json(), async (req, res) => {
   const { email } = req.body;
   const productId = req.query.productId || req.query.productid
 
@@ -45,12 +45,13 @@ app.post("/create-checkout-session", async (req, res) => {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: getPriceForProduct(productId), // Price ID from Stripe Dashboard
+          price: (await getPriceForProduct(productId)).id, // Price ID from Stripe Dashboard
           quantity: 1,
         },
       ],
       mode: "payment",
       customer_email: email, // Collect customer email
+      customer_creation: "always",
       success_url: "http://localhost:3000/success.html",
       cancel_url: "http://localhost:3000/cancel.html",
     });
@@ -63,38 +64,48 @@ app.post("/create-checkout-session", async (req, res) => {
 });
 
 // Webhook to handle successful payment and create an invoice
-app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
+app.post("/webhook", bodyParser.raw({type: 'application/json'}), async (req, res) => {
   let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      req.headers["stripe-signature"],
-      endpointSecret
-    );
+  // Verify event came from Stripe
+  try{
+    event = await stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error(err.message);
-    return res.status(400).send(`Webhook error: ${err.message}`);
+    // On error, log and return the error message
+    console.log(`❌ Error message: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-
   // Handle the event
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
+  switch (event.type) {
+    // Handle checkout complete event
+    case "checkout.session.completed":
+        const session = event.data.object;
+        try {
+          const invoice = await stripe.invoices.create({
+            customer: session.customer,
+            auto_advance: true, // Automatically finalize the invoice
+          });
+    
+          console.log("Invoice created:", invoice.id);
+        } catch (error) {
+          console.error("Failed to create invoice:", error);
+        }
+        break;
+    // Handle invoice paid event
+    case "invoice.payment_succeeded":
+        const invoice = event.data.object; // The invoice object
+        const customerId = invoice.customer;
+        const amountPaid = invoice.amount_paid / 100;
 
-    try {
-      const invoice = await stripe.invoices.create({
-        customer: session.customer,
-        auto_advance: true, // Automatically finalize the invoice
-      });
+        console.log(`Invoice for Customer ${customerId} paid: $${amountPaid}`);
 
-      console.log("Invoice created:", invoice.id);
-    } catch (error) {
-      console.error("Failed to create invoice:", error);
-    }
+        // Optional: Fetch customer details
+        const customer = await stripe.customers.retrieve(customerId);
+        console.log(`Email sent to: ${customer.email}`);
+        break;
+    // Handle other event types as needed
+    default:
+        console.log(`Unhandled event type: ${event.type}`);
   }
-
   res.json({ received: true });
 });
 

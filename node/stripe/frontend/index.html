@@ -18,11 +18,12 @@
 
   <script>
     const stripe = Stripe("pk_test_51QfRhXF0pXjohmvsfBeqTp7K69f8RHS5j1hyceqsQ8qvOUBBZatwuOPqMEHCyE4OSGSW9jZhzDKdqxBiUPrkQRuw00fFIZhana");
+    const productId = "prod_RYaIYPKni3PPzs";
 
     // Fetch product details
     async function fetchProductDetails() {
       try {
-        const response = await fetch("/product-info?productId=prod_RYaIYPKni3PPzs");
+        const response = await fetch("/product-info?productId="+productId);
         const data = await response.json();
 
         document.getElementById("product-name").textContent = data.name;
@@ -45,7 +46,7 @@
       }
 
       try {
-        const response = await fetch("/create-checkout-session", {
+        const response = await fetch("/create-checkout-session?productId="+productId, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),

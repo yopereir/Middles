@@ -5,8 +5,8 @@
   "scripts": {
     "payment": "nodemon ./services/payment/server.js",
     "webhook": "nodemon ./services/webhook/server.js",
-    "serve-payment": "node ./payment/server.js",
-    "serve-webhook": "node ./webhook/server.js"
+    "server-payment": "node ./services/payment/server.js",
+    "server-webhook": "node ./services/webhook/server.js"
   },
   "author": "",
   "license": "ISC",

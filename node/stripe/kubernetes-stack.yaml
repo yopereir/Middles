@@ -20,7 +20,7 @@ spec:
         imagePullPolicy: Never
         command: ['/bin/sh', '-c']
         args:
-          - node ./payment/server.js
+          - npm run server-payment
         ports:
         - containerPort: 3000
         volumeMounts:
@@ -33,7 +33,7 @@ spec:
         imagePullPolicy: Never
         command: ['/bin/sh', '-c']
         args:
-          - node ./webhook/server.js
+          - npm run server-webhook
         ports:
         - containerPort: 4242
         volumeMounts:

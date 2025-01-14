@@ -20,21 +20,10 @@ spec:
         imagePullPolicy: Never
         command: ['/bin/sh', '-c']
         args:
-          - npm run server-payment
+          - npm run server-payment && npm run server-webhook && npm run logs
+          # Run this command to view server processes within the container: `./node_modules/.bin/pm2 list`
         ports:
         - containerPort: 3000
-        volumeMounts:
-          - name: stripe-env-file
-            readOnly: true
-            mountPath: /node/app/.env # Path where the .env file will be mounted
-            subPath: .env # Secret key to use for mounting
-      - name: stripe-webhook
-        image: stripe
-        imagePullPolicy: Never
-        command: ['/bin/sh', '-c']
-        args:
-          - npm run server-webhook
-        ports:
         - containerPort: 4242
         volumeMounts:
           - name: stripe-env-file

@@ -2,9 +2,11 @@
   "name": "stripe",
   "version": "1.0.0",
   "description": "middleware to work with Stripe payment API",
-  "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "payment": "nodemon ./services/payment/server.js",
+    "webhook": "nodemon ./services/webhook/server.js",
+    "serve-payment": "node ./payment/server.js",
+    "serve-webhook": "node ./webhook/server.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stripe-deployment
+  labels:
+    app: stripe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stripe
+  template:
+    metadata:
+      labels:
+        app: stripe
+    spec:
+      containers:
+      - name: stripe-payment
+        image: stripe
+        imagePullPolicy: Never
+        command: ['/bin/sh', '-c']
+        args:
+          - node ./payment/server.js
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+          - name: stripe-env-file
+            readOnly: true
+            mountPath: /node/app/.env # Path where the .env file will be mounted
+            subPath: .env # Secret key to use for mounting
+      - name: stripe-webhook
+        image: stripe
+        imagePullPolicy: Never
+        command: ['/bin/sh', '-c']
+        args:
+          - node ./webhook/server.js
+        ports:
+        - containerPort: 4242
+        volumeMounts:
+          - name: stripe-env-file
+            readOnly: true
+            mountPath: /node/app/.env # Path where the .env file will be mounted
+            subPath: .env # Secret key to use for mounting
+      volumes:
+      - name: stripe-env-file
+        secret:
+          secretName: stripe-env-file
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stripe-service
+spec:
+  selector:
+    app: stripe
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      name: payment
+    - protocol: TCP
+      port: 4242
+      targetPort: 4242
+      name: webhook
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stripe
+  labels:
+    app: stripe
+spec:
+  ingressClassName: "nginx"
+  rules:
+    - host: mystripeserver.test
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: stripe
+                port:
+                  name: payment
+    - host: mystripeserver.test
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: stripe
+                port:
+                  name: webhook

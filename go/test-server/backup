@@ -1,0 +1,74 @@
+package main
+
+import (
+    "fmt"
+	"strconv"
+	"math/rand"
+    "net/http"
+	"strings"
+	"encoding/json"
+    "github.com/filipkroca/revgeo"
+)
+
+const (
+    TokenManagerURL = "tokenURL"
+)
+
+func getMemes(query string, country string) (Meme){
+    // Assign defaults if query or country does not exist
+    _, exists := Memes[query]
+    if !exists {
+        query = "default"
+    }
+    _, exists = Memes[query][country]
+    if !exists {
+        country = "default"
+    }
+    fmt.Printf("Query: %s \nCountry: %s\n",query,country)
+
+    // Get Meme from database
+    fetchedMeme := Memes[query][country][rand.Intn(len(Memes[query][country]))]
+    fmt.Printf("Title: %s\tURL: %s\tAltText: %s\n", fetchedMeme.Title, fetchedMeme.Url, fetchedMeme.AltText)
+    return fetchedMeme
+}
+
+func canCallAPI(bearerToken string) bool {
+    response, err := http.Get("https://"+TokenManagerURL+"?token="+bearerToken)
+    if err != nil || response.StatusCode != http.StatusOK {
+        return false
+    }
+    return true
+}
+
+func main() {
+    http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintf(w, "Wewlcome to my website!")
+    })
+
+    http.HandleFunc("/memes", func (w http.ResponseWriter, r *http.Request) {
+        // Check if user can use API
+        authHeader := r.Header.Get("Authorization")
+        if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" || canCallAPI(strings.Fields(authHeader)[1]) {
+            w.WriteHeader(http.StatusForbidden)
+            w.Write([]byte("403 Forbidden - Access Denied"))
+            return
+        }
+
+        // Sanitise data
+        query := r.URL.Query().Get("query")
+        lat, err := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
+        lon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
+        decoder := (revgeo.Decoder{})
+        country, err := decoder.Geocode(lon, lat)
+        if err != nil { country = ""}
+
+        // Get meme
+        response := getMemes(query, country)
+
+        // Send Response
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(response)
+    })
+
+    http.ListenAndServe(":8089", nil)
+}

@@ -149,15 +149,16 @@ func main() {
     })
 
     http.HandleFunc("/memes", func (w http.ResponseWriter, r *http.Request) {
-        // Check if user can use API
+        // Check if user has authToken
         authHeader := r.Header.Get("Authorization")
         if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" {
             http.Error(w, "403 Forbidden - Access Denied", http.StatusForbidden)
             return
         }
         
+        // Fetch subscriptionType and deduct balance of user based on subscriptionType
         subscriptionType, err := getSubscriptionTypeAndDeductBalance(strings.Fields(authHeader)[1])
-        // Comment out this code to use Databases
+        // UnComment this code to use Redis and Postgres Databases
         //if err != nil {
         //    http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
         //    return
@@ -179,10 +180,11 @@ func main() {
             response = getMemes(query, country)
         }
 
-        // Send Response
+        // Send Meme Response to user in JSON format
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(response)
     })
 
+    // start server on port 8089
     http.ListenAndServe(":8089", nil)
 }

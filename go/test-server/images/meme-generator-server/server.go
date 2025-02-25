@@ -62,12 +62,16 @@ func getMemes(query string, country string) (Meme){
 }
 
 func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
-    log.Printf("Validating auth token")
     response, err := http.Get("https://"+TokenManagerURL+"?token="+bearerToken)
     if err != nil || response.StatusCode != http.StatusOK {
         return "", err
     }
-    return  "default", nil
+	defer response.Body.Close()
+    var result map[string]string
+    if err:= json.NewDecoder(response.Body).Decode(&result); err !=nil {
+        return "", err
+    }
+    return result["subscriptionType"], nil
 }
 
 func main() {

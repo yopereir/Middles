@@ -25,6 +25,24 @@ var (
     POSTGRES_PASSWORD = os.Getenv("POSTGRES_PASSWORD")
 )
 
+func getSpicyAIMemes(query string, country string) (Meme){
+    // Assign defaults if query or country does not exist
+    _, exists := Memes[query]
+    if !exists {
+        query = "default"
+    }
+    _, exists = Memes[query][country]
+    if !exists {
+        country = "default"
+    }
+    log.Printf("Query: %s \nCountry: %s\n",query,country)
+
+    // Generate AI meme
+    fetchedMeme := Memes[query][country][rand.Intn(len(Memes[query][country]))]
+    log.Printf("Title: %s\tURL: %s\tAltText: %s\n", fetchedMeme.Title, fetchedMeme.Url, fetchedMeme.AltText)
+    return fetchedMeme
+}
+
 func getMemes(query string, country string) (Meme){
     // Assign defaults if query or country does not exist
     _, exists := Memes[query]
@@ -37,26 +55,25 @@ func getMemes(query string, country string) (Meme){
     }
     log.Printf("Query: %s \nCountry: %s\n",query,country)
 
-    // Get Meme from database
+    // Get Meme from Struct OR Database
     fetchedMeme := Memes[query][country][rand.Intn(len(Memes[query][country]))]
     log.Printf("Title: %s\tURL: %s\tAltText: %s\n", fetchedMeme.Title, fetchedMeme.Url, fetchedMeme.AltText)
     return fetchedMeme
 }
 
-func canCallAPI(bearerToken string) bool {
+func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
+    log.Printf("Validating auth token")
     response, err := http.Get("https://"+TokenManagerURL+"?token="+bearerToken)
     if err != nil || response.StatusCode != http.StatusOK {
-        return false
+        return "", err
     }
-    return true
+    return  "default", nil
 }
 
 func main() {
 	// Init Redis
 	ctx := context.Background()
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
-	})
+	redisClient := redis.NewClient(&redis.Options{Addr: "redis:6379",})
     _, err := redisClient.Ping(ctx).Result()
     if err != nil {log.Printf("Error Connecting to redis: %s\n", err)} else {log.Println("Successfully connected to Redis!")}
 	defer redisClient.Close()
@@ -73,9 +90,14 @@ func main() {
     http.HandleFunc("/memes", func (w http.ResponseWriter, r *http.Request) {
         // Check if user can use API
         authHeader := r.Header.Get("Authorization")
-        if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" || canCallAPI(strings.Fields(authHeader)[1]) {
-            w.WriteHeader(http.StatusForbidden)
-            w.Write([]byte("403 Forbidden - Access Denied"))
+        if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" {
+            http.Error(w, "403 Forbidden - Access Denied", http.StatusForbidden)
+            return
+        }
+        
+        subscriptionType, err := getSubscriptionTypeAndDeductBalance(strings.Fields(authHeader)[1])
+        if err != nil {
+            http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
             return
         }
 
@@ -88,7 +110,12 @@ func main() {
         if err != nil { country = ""}
 
         // Get meme
-        response := getMemes(query, country)
+        var response Meme
+        if subscriptionType == "AI" {
+            response = getSpicyAIMemes(query, country)
+        } else {
+            response = getMemes(query, country)
+        }
 
         // Send Response
         w.Header().Set("Content-Type", "application/json")

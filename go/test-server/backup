@@ -42,7 +42,7 @@ func canCallAPI(bearerToken string) bool {
 
 func main() {
     http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
-        fmt.Fprintf(w, "Wewlcome to my website!")
+        fmt.Fprintf(w, "This is the meme generation server")
     })
 
     http.HandleFunc("/memes", func (w http.ResponseWriter, r *http.Request) {

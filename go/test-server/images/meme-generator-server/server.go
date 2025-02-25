@@ -157,10 +157,11 @@ func main() {
         }
         
         subscriptionType, err := getSubscriptionTypeAndDeductBalance(strings.Fields(authHeader)[1])
-        if err != nil {
-            http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
-            return
-        }
+        // Comment out this code to use Databases
+        //if err != nil {
+        //    http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
+        //    return
+        //}
 
         // Sanitise data
         query := r.URL.Query().Get("query")

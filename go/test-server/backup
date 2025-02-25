@@ -1,6 +1,8 @@
 package main
 
 import (
+    "os"
+    "log"
     "fmt"
 	"strconv"
 	"math/rand"
@@ -8,11 +10,38 @@ import (
 	"strings"
 	"encoding/json"
     "github.com/filipkroca/revgeo"
+	"context"
+    "github.com/redis/go-redis/v9"
+	"github.com/jmoiron/sqlx"
+    _ "github.com/lib/pq"
 )
 
 const (
     TokenManagerURL = "tokenURL"
 )
+var (
+    POSTGRES_DB = os.Getenv("POSTGRES_DB")
+    POSTGRES_USER = os.Getenv("POSTGRES_USER")
+    POSTGRES_PASSWORD = os.Getenv("POSTGRES_PASSWORD")
+)
+
+func getSpicyAIMemes(query string, country string) (Meme){
+    // Assign defaults if query or country does not exist
+    _, exists := Memes[query]
+    if !exists {
+        query = "default"
+    }
+    _, exists = Memes[query][country]
+    if !exists {
+        country = "default"
+    }
+    log.Printf("Query: %s \nCountry: %s\n",query,country)
+
+    // Generate AI meme
+    fetchedMeme := Memes[query][country][rand.Intn(len(Memes[query][country]))]
+    log.Printf("Title: %s\tURL: %s\tAltText: %s\n", fetchedMeme.Title, fetchedMeme.Url, fetchedMeme.AltText)
+    return fetchedMeme
+}
 
 func getMemes(query string, country string) (Meme){
     // Assign defaults if query or country does not exist
@@ -24,20 +53,54 @@ func getMemes(query string, country string) (Meme){
     if !exists {
         country = "default"
     }
-    fmt.Printf("Query: %s \nCountry: %s\n",query,country)
+    log.Printf("Query: %s \nCountry: %s\n",query,country)
 
-    // Get Meme from database
+    // Get Meme from Struct OR Database
     fetchedMeme := Memes[query][country][rand.Intn(len(Memes[query][country]))]
-    fmt.Printf("Title: %s\tURL: %s\tAltText: %s\n", fetchedMeme.Title, fetchedMeme.Url, fetchedMeme.AltText)
+    log.Printf("Title: %s\tURL: %s\tAltText: %s\n", fetchedMeme.Title, fetchedMeme.Url, fetchedMeme.AltText)
     return fetchedMeme
 }
 
-func canCallAPI(bearerToken string) bool {
+func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
+	// Init Redis
+	ctx := context.Background()
+	redisClient := redis.NewClient(&redis.Options{Addr: "redis:6379",})
+    _, err := redisClient.Ping(ctx).Result()
+    if err != nil {
+        log.Printf("Error Connecting to redis: %s\n", err)
+        return "", err
+    } else {
+        log.Println("Successfully connected to Redis!")
+    }
+	defer redisClient.Close()
+
+	// Init Postgres
+	dbClient, err := sqlx.Connect("postgres", "host=postgres port=5432 user="+POSTGRES_USER+" password="+POSTGRES_PASSWORD+" dbname="+POSTGRES_DB+" sslmode=disable")
+    if err != nil {
+        log.Printf("Error Connecting to Postgres: %s\n", err)
+        return "", err
+    } else {
+        log.Println("Successfully connected to Postgres!")
+    }
+	defer dbClient.Close()
+
+    // Get Client Data
     response, err := http.Get("https://"+TokenManagerURL+"?token="+bearerToken)
     if err != nil || response.StatusCode != http.StatusOK {
-        return false
+        return "", err
     }
-    return true
+	defer response.Body.Close()
+
+	currentBalance, err := redisClient.Get(ctx, bearerToken).Result()
+    if err == redis.Nil {
+
+    }
+    
+    var result map[string]string
+    if err:= json.NewDecoder(response.Body).Decode(&result); err !=nil {
+        return "", err
+    }
+    return result["subscriptionType"], nil
 }
 
 func main() {
@@ -48,9 +111,14 @@ func main() {
     http.HandleFunc("/memes", func (w http.ResponseWriter, r *http.Request) {
         // Check if user can use API
         authHeader := r.Header.Get("Authorization")
-        if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" || canCallAPI(strings.Fields(authHeader)[1]) {
-            w.WriteHeader(http.StatusForbidden)
-            w.Write([]byte("403 Forbidden - Access Denied"))
+        if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" {
+            http.Error(w, "403 Forbidden - Access Denied", http.StatusForbidden)
+            return
+        }
+        
+        subscriptionType, err := getSubscriptionTypeAndDeductBalance(strings.Fields(authHeader)[1])
+        if err != nil {
+            http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
             return
         }
 
@@ -63,7 +131,12 @@ func main() {
         if err != nil { country = ""}
 
         // Get meme
-        response := getMemes(query, country)
+        var response Meme
+        if subscriptionType == "AI" {
+            response = getSpicyAIMemes(query, country)
+        } else {
+            response = getMemes(query, country)
+        }
 
         // Send Response
         w.Header().Set("Content-Type", "application/json")

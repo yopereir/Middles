@@ -9,6 +9,7 @@ import (
     "net/http"
 	"strings"
     "time"
+    "errors"
 	"encoding/json"
     "github.com/filipkroca/revgeo"
 	"context"
@@ -129,13 +130,13 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
     // Deduct Balance
     if subscriptionType == "AI" {
         if currentBalance - 3 < 0 {
-            return "Not enough token balance.", err
+            return "", errors.New("Not enough balance: "+fmt.Sprintf("%d",currentBalance))
         } else {
             currentBalance -= 3
         }
     } else {
         if currentBalance - 1 < 0 {
-            return "Not enough token balance.", err
+            return "", errors.New("Not enough balance: "+fmt.Sprintf("%d",currentBalance))
         } else {
             currentBalance -= 1
         }
@@ -145,8 +146,16 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
     if err != nil {return subscriptionType, err}
     // Deduct Balance from Postgres asynchronously
     go func () {
+        // Re-establish connection to database since Async nature can kill DB connection
+        dbClient, err = sqlx.Connect("postgres", "host=postgres port=5432 user="+POSTGRES_USER+" password="+POSTGRES_PASSWORD+" dbname="+POSTGRES_DB+" sslmode=disable")
+        if err != nil {
+            log.Printf("Error Connecting to Postgres: %s\n", err);log.Println(err)
+        } else {
+            log.Println("Successfully connected to Postgres!");log.Println(err)
+        }
+        defer dbClient.Close()
         _, err = dbClient.Exec("UPDATE Users SET tokenBalance = $1 where userID = $2",currentBalance,userID)
-        if err != nil {log.Printf("Error updating the Postgres database with user data:\nuserID: "+userID+"\ntokenBalance: "+fmt.Sprintf("%d",currentBalance))}
+        if err != nil {log.Printf("Error updating the Postgres database with user data:\nuserID: "+userID+"\ntokenBalance: "+fmt.Sprintf("%d",currentBalance));log.Println(err)}
     }()
     return subscriptionType, nil
 }

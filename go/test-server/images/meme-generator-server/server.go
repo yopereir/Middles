@@ -19,14 +19,16 @@ import (
 )
 
 const (
-    TokenManagerURL = "tokenURL"
+    TokenManagerURL = "tokenURL" // Used to get userID from bearerToken
 )
 var (
+    // Creds to connect to Postgres Database
     POSTGRES_DB = os.Getenv("POSTGRES_DB")
     POSTGRES_USER = os.Getenv("POSTGRES_USER")
     POSTGRES_PASSWORD = os.Getenv("POSTGRES_PASSWORD")
 )
 
+// Function to return Spicy AI memes
 func getSpicyAIMemes(query string, country string) (Meme){
     // Assign defaults if query or country does not exist
     _, exists := Memes[query]
@@ -45,6 +47,7 @@ func getSpicyAIMemes(query string, country string) (Meme){
     return fetchedMeme
 }
 
+// Function to return general memes with subscriptionType != AI
 func getMemes(query string, country string) (Meme){
     // Assign defaults if query or country does not exist
     _, exists := Memes[query]
@@ -63,6 +66,7 @@ func getMemes(query string, country string) (Meme){
     return fetchedMeme
 }
 
+// Function that gets subscriptionType and tokenBalance of the user and deducts the token balance for the request
 func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
 	// Init Redis
 	ctx := context.Background()
@@ -129,18 +133,22 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
     
     // Deduct Balance
     if subscriptionType == "AI" {
+        // Deduct 3 tokens if AI subscriptionType
         if currentBalance - 3 < 0 {
             return "", errors.New("Not enough balance: "+fmt.Sprintf("%d",currentBalance))
         } else {
             currentBalance -= 3
         }
     } else {
+        // Deduct 1 token if subscriptionType != AI
         if currentBalance - 1 < 0 {
             return "", errors.New("Not enough balance: "+fmt.Sprintf("%d",currentBalance))
         } else {
             currentBalance -= 1
         }
     }
+
+    // Commit balance deductions to Databases
     // Deduct Balance in redis
     err = redisClient.Set(ctx, "token:"+userID, currentBalance, time.Hour).Err()
     if err != nil {return subscriptionType, err}
@@ -161,6 +169,7 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
 }
 
 func main() {
+    // Default response indicating you pinged the right server
     http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, "This is the meme generation server")
     })
@@ -175,7 +184,7 @@ func main() {
         
         // Fetch subscriptionType and deduct balance of user based on subscriptionType
         subscriptionType, err := getSubscriptionTypeAndDeductBalance(strings.Fields(authHeader)[1])
-        // UnComment this code to use Redis and Postgres Databases
+        // Throw error if any issue in getting or updating user info
         if err != nil {
             http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
             return
@@ -185,6 +194,7 @@ func main() {
         query := r.URL.Query().Get("query")
         lat, err := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
         lon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
+        // Get country from latitude and longitude data
         decoder := (revgeo.Decoder{})
         country, err := decoder.Geocode(lon, lat)
         if err != nil { country = ""}

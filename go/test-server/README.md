@@ -1,4 +1,10 @@
-# This project is the Solution to the 
+# This project is the Solution to the Meme API assignment
+
+## Project Strcuture
+1. Solution for questions 1 and 2 are present at `./images/meme-generator-server/`
+2. Solution for questions 3 and 4 are present at `./stack-files/`
+3. To run complete solution, run `./deploy.sh`
+
 ## How to deploy and test:
 - Deploy stack to a connected kubernetes cluster by running `./deploy.sh`.
 - Run `kubectl port-forward -n $NAMESPACE svc/meme-generator-server-service 8080:8089`.

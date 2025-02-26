@@ -1,11 +1,11 @@
 package main
-
+// Meme data format
 type Meme struct {
 	Title   string `json:"title"`
 	Url     string `json:"url"`
 	AltText string `json:"altText"`
 }
-
+// mock meme data
 var Memes = map[string]map[string][]Meme {
     "food": {
             "default": {

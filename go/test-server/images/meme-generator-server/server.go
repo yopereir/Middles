@@ -168,7 +168,7 @@ func main() {
     http.HandleFunc("/memes", func (w http.ResponseWriter, r *http.Request) {
         // Check if user has authToken
         authHeader := r.Header.Get("Authorization")
-        if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" {
+        if authHeader == "" || strings.ToLower(strings.Fields(authHeader)[0]) != "bearer" || strings.Fields(authHeader)[1] != "" {
             http.Error(w, "403 Forbidden - Access Denied", http.StatusForbidden)
             return
         }

@@ -151,7 +151,7 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
         if err != nil {
             log.Printf("Error Connecting to Postgres: %s\n", err);log.Println(err)
         } else {
-            log.Println("Successfully connected to Postgres!");log.Println(err)
+            log.Println("Successfully connected to Postgres!")
         }
         defer dbClient.Close()
         _, err = dbClient.Exec("UPDATE Users SET tokenBalance = $1 where userID = $2",currentBalance,userID)

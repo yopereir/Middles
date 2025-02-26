@@ -63,7 +63,7 @@ func TestMemeForStandardSubscription(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, err := http.NewRequest("GET", "memes?lat=40.73&lon=-73.93&query=food", nil)
+			req, err := http.NewRequest("GET", "http://localhost:8089/memes?lat=40.73&lon=-73.93&query=food", nil)
 			if err != nil {
 				t.Fatal(err)
 			}

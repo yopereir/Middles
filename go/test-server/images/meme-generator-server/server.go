@@ -93,20 +93,20 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
     //  var result map[string]string
     //  if err:= json.NewDecoder(response.Body).Decode(&result); err !=nil {return "", err}
     //  userID := result["userId"]
-    userID := "user1" // Mock data
+    userID := "1" // Mock data
 
     // Get currentBalance
     var currentBalance int
     // Check if userBalance is present on Redis
-	userBalance, err := redisClient.Get(ctx, "token:"+bearerToken).Result()
+	userBalance, err := redisClient.Get(ctx, "token:"+userID).Result()
     if err == redis.Nil {
         // Get userBalance from Postgres if not present in Redis
         var fetchedBalance int
-        err := dbClient.QueryRow("SELECT tokenBalance FROM users WHERE userID = $1", userID).Scan(&fetchedBalance)
+        err = dbClient.QueryRow("SELECT tokenBalance FROM users WHERE userID = $1", userID).Scan(&fetchedBalance)
         if err != nil {return "", err}
         userBalance = fmt.Sprintf("%d", fetchedBalance)
         // Set Balance in Redis
-        err = redisClient.Set(ctx, "token:"+bearerToken, userBalance, time.Hour).Err()
+        err = redisClient.Set(ctx, "token:"+userID, userBalance, time.Hour).Err()
         if err != nil {return "", err}
     }
     currentBalance, err = strconv.Atoi(userBalance)
@@ -114,15 +114,15 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
 
     // Get subscriptionType
     // Check if subscriptionType is present on Redis
-	subscriptionType, err := redisClient.Get(ctx, "subscription:"+bearerToken).Result()
+	subscriptionType, err := redisClient.Get(ctx, "subscription:"+userID).Result()
     if err == redis.Nil {
         // Get subscriptionType from Postgres if not present in Redis
         var fetchedSubscriptionType string
-        err := dbClient.QueryRow("SELECT subscriptionType FROM users WHERE userID = $1", userID).Scan(&fetchedSubscriptionType)
+        err := dbClient.QueryRow("SELECT subscriptionType FROM Users WHERE userID = $1", userID).Scan(&fetchedSubscriptionType)
         if err != nil {return "", err}
         subscriptionType = fetchedSubscriptionType
         // Set Balance in Redis
-        err = redisClient.Set(ctx, "subscription:"+bearerToken, subscriptionType, time.Hour).Err()
+        err = redisClient.Set(ctx, "subscription:"+userID, subscriptionType, time.Hour).Err()
         if err != nil {return "", err}
     }
     
@@ -133,11 +133,11 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
         currentBalance -= 1
     }
     // Deduct Balance in redis
-    err = redisClient.Set(ctx, "token:"+bearerToken, userBalance, time.Hour).Err()
+    err = redisClient.Set(ctx, "token:"+userID, userBalance, time.Hour).Err()
     if err != nil {return subscriptionType, err}
     // Deduct Balance from Postgres asynchronously
     go func () {
-        _, err = dbClient.Exec("UPDATE users SET tokenBalance = $1 where userID = $2",currentBalance,userID)
+        _, err = dbClient.Exec("UPDATE Users SET tokenBalance = $1 where userID = $2",currentBalance,userID)
         if err != nil {log.Printf("Error updating the Postgres database with user data:\nuserID: "+userID+"\ntokenBalance: "+fmt.Sprintf("%d",currentBalance))}
     }()
     return subscriptionType, nil
@@ -159,10 +159,10 @@ func main() {
         // Fetch subscriptionType and deduct balance of user based on subscriptionType
         subscriptionType, err := getSubscriptionTypeAndDeductBalance(strings.Fields(authHeader)[1])
         // UnComment this code to use Redis and Postgres Databases
-        //if err != nil {
-        //    http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
-        //    return
-        //}
+        if err != nil {
+            http.Error(w, fmt.Sprintf("500 Internal Server Error - %s",err), http.StatusInternalServerError)
+            return
+        }
 
         // Sanitise data
         query := r.URL.Query().Get("query")

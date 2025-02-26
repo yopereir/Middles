@@ -9,4 +9,4 @@ kubectl apply -R -f ./stack-files --namespace $NAMESPACE
 
 # Test
 # kubectl port-forward -n $NAMESPACE svc/meme-generator-server-service 8089:8089
-# curl -X GET -H "Authorization: Bearer token" "http://localhost:8089/memes?lat=40.73&lon=-73.93&query=food"
+# curl -X GET -H "Authorization: Bearer 1" "http://localhost:8089/memes?lat=40.73&lon=-73.93&query=food"

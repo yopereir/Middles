@@ -93,7 +93,7 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
     //  var result map[string]string
     //  if err:= json.NewDecoder(response.Body).Decode(&result); err !=nil {return "", err}
     //  userID := result["userId"]
-    userID := "1" // Mock data
+    userID := bearerToken // Mock data
 
     // Get currentBalance
     var currentBalance int
@@ -128,12 +128,20 @@ func getSubscriptionTypeAndDeductBalance(bearerToken string) (string, error) {
     
     // Deduct Balance
     if subscriptionType == "AI" {
-        currentBalance -= 3
+        if currentBalance - 3 < 0 {
+            return "Not enough token balance.", err
+        } else {
+            currentBalance -= 3
+        }
     } else {
-        currentBalance -= 1
+        if currentBalance - 1 < 0 {
+            return "Not enough token balance.", err
+        } else {
+            currentBalance -= 1
+        }
     }
     // Deduct Balance in redis
-    err = redisClient.Set(ctx, "token:"+userID, userBalance, time.Hour).Err()
+    err = redisClient.Set(ctx, "token:"+userID, currentBalance, time.Hour).Err()
     if err != nil {return subscriptionType, err}
     // Deduct Balance from Postgres asynchronously
     go func () {

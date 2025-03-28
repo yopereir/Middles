@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"io"
 	"net/http"
 	"os"
@@ -29,8 +30,9 @@ type Source struct {
 }
 
 func getNews(API_KEY string) {
-	if API_KEY == "" {
-		API_KEY = "API_KEY" // Fallback placeholder
+	apiKey := os.Getenv("NEWS_API_KEY")
+	if apiKey == "" {
+		log.Fatal("Missing NEWS_API_KEY environment variable")
 	}
 
 	// Construct the URL with query parameters.

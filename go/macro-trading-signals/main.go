@@ -38,7 +38,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 	// Test function to call the AI model with a specific news article
-	getTradeSignalsFromSpecificNewsArticle("Microsoft seeks to buy activision for 69 billion")
+	getTradeSignalsFromSpecificNewsArticle("IBM in talks to buy Target for 19 billion, 15 percent discount on market cap")
 	// Below function will call newsAPI to get the latest news and then call the AI model to get the trade signals for each news article.
 	//getTradeSignalsFromNews()
 }

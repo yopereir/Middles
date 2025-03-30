@@ -40,8 +40,9 @@ func getInference(newsArticle string, modelToUse string) (TradeSignal, error) {
 	defer client.Close()
 
 	model := client.GenerativeModel(modelToUse)  // Choose your model
-	promptResponseDefinition := "Trade signal should be a json object having the following keys: tradeDirection, tickerSymbol, buyPrice, sellPrice. All values in the JSON will be a string. If you are not confident about a value enter unsure as the string. If no information can be got from the news article enter unsure for all fields."
-	prompt := "Read the following news and generate a trade signal." + promptResponseDefinition + "News: \n" + newsArticle
+	//promptResponseDefinition := "Trade signal should be a json object having the following keys: tradeDirection, tickerSymbol, buyPrice, sellPrice. tradeDirection should be 'buy' if it is bullish news or 'sell' if it is bearish news for the company being bought. Ticket symbol is only the symbol of the company being bought. All values in the JSON will be a string. If you are less than 50 percent confident about a value enter 'unsure' as the string. If no information can be got from the news article enter unsure for all fields. Your output should only be in json format."
+	promptResponseDefinition := "Trade signal should be a json object having only the following keys: tradeDirection, tickerSymbol, buyPrice, sellPrice. The trade signal is for merger and acquisition news. The tradeDirection should be 'buy' if acquisition price for the company being bought is higher than its market cap or 'sell' if acquisition price for the company being bought is lower than its market cap. The ticker symbol is only the symbol of the company being bought. All values in the JSON will be a string. If you are less than 50 percent confident about a value enter 'unsure' as the string. If no information can be got from the news article enter unsure for all fields. Your output should only be in json format."
+	prompt := "Read the following news and generate a trade signal and nothing else." + promptResponseDefinition + "News: \n" + newsArticle
 
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 	if err != nil {
@@ -54,7 +55,7 @@ func getInference(newsArticle string, modelToUse string) (TradeSignal, error) {
 	}
 	jsonString := string(resp.Candidates[0].Content.Parts[0].(genai.Text))
 	var tradeSignal TradeSignal
-	
+
 	// Sanitize the JSON string to remove any unwanted characters or formatting
 	fmt.Println("Raw JSON Response:", jsonString)
 	jsonString = strings.TrimSpace(jsonString)

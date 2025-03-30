@@ -29,20 +29,20 @@ type Source struct {
 	Name string `json:"name"`
 }
 
-func getNews(API_KEY string) {
+func getNews() (NewsResponse, error) {
 	apiKey := os.Getenv("NEWS_API_KEY")
 	if apiKey == "" {
 		log.Fatal("Missing NEWS_API_KEY environment variable")
 	}
 
 	// Construct the URL with query parameters.
-	url := fmt.Sprintf("https://newsapi.org/v2/top-headlines?country=us&apiKey=%s", API_KEY)
+	url := fmt.Sprintf("https://newsapi.org/v2/top-headlines?country=us&apiKey=%s", apiKey)
 
 	// Make the GET request.
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Error making request:", err)
-		return
+		return NewsResponse{}, err
 	}
 	defer resp.Body.Close()
 
@@ -50,23 +50,14 @@ func getNews(API_KEY string) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response:", err)
-		return
+		return NewsResponse{}, err
 	}
 
 	// Unmarshal the JSON response into our struct.
 	var newsResponse NewsResponse
 	if err := json.Unmarshal(body, &newsResponse); err != nil {
 		fmt.Println("Error parsing JSON:", err)
-		return
+		return NewsResponse{}, err
 	}
-
-	// Print out the fetched news details.
-	fmt.Printf("Status: %s\n", newsResponse.Status)
-	fmt.Printf("Total Results: %d\n", newsResponse.TotalResults)
-	for i, article := range newsResponse.Articles {
-		fmt.Printf("\nArticle %d:\n", i+1)
-		fmt.Printf("Title: %s\n", article.Title)
-		fmt.Printf("Description: %s\n", article.Description)
-		fmt.Printf("URL: %s\n", article.URL)
-	}
+	return newsResponse, nil
 }

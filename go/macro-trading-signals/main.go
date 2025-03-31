@@ -23,10 +23,11 @@ func getTradeSignalsFromNews() {
 		log.Fatal("Error getting news responses:", err)
 	}
 	for _, article := range newsResponse.Articles {
-		tradeSignal, err := getInference(article.Title, "gemini-2.0-flash")
+		tradeSignal, err := getInference(article.Description, "gemini-2.0-flash")
 		if err != nil {
 			log.Fatal("Error getting inference:", err)
 		}
+		fmt.Println("Title: ", article.Title)
 		fmt.Println("Ticker: ", tradeSignal.Ticker)
 		fmt.Println("Trade Direction: ", tradeSignal.Direction)
 	}

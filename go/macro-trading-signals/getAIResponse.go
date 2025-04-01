@@ -49,15 +49,10 @@ func getInference(newsArticle string, modelToUse string) (TradeSignal, error) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Generated Text:")
-	for _, part := range resp.Candidates[0].Content.Parts {
-		fmt.Println(part)
-	}
 	jsonString := string(resp.Candidates[0].Content.Parts[0].(genai.Text))
 	var tradeSignal TradeSignal
 
 	// Sanitize the JSON string to remove any unwanted characters or formatting
-	fmt.Println("Raw JSON Response:", jsonString)
 	jsonString = strings.TrimSpace(jsonString)
 	jsonString = strings.TrimPrefix(jsonString, "```json")
 	jsonString = strings.TrimSuffix(jsonString, "```")

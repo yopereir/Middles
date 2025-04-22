@@ -111,6 +111,8 @@ func main() {
 	// Below function will call newsAPI to get the latest news and then call the AI model to get the trade signals for each news article.
 	//getTradeSignalsFromNews() // Get news from NewsAPI
 	//getTradeSignalsFromNewsVantage() // Get news from NewsVantage API
-	//createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "10", "150.00", "limit") // limit order example
-	createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "10", "150.00", "market") // market order example
+	if tradeSignal.Ticker != "unsure" {
+		createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "10", "20.00", "limit") // limit order example
+		//createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "100", "150.00", "market") // market order example
+	}
 }

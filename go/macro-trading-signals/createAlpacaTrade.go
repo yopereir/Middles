@@ -21,7 +21,7 @@ func createAlpacaTrade(ticker string, tradeDirection string, quantity string, li
 	if alpacaApiKey == "" { log.Fatal("Missing ALPACA_API_KEY environment variable") }
 	alpacaSecret := os.Getenv("ALPACA_API_SECRET")
 	if alpacaSecret == "" { log.Fatal("Missing ALPACA_API_SECRET environment variable") }
-	alpacaBaseUrl := os.Getenv("ALPACA_API_BASE_URL")
+	alpacaBaseUrl := os.Getenv("ALPACA_API_BASE_URL") // DEFAULT https://paper-api.alpaca.markets/v2
 	if alpacaBaseUrl == "" { log.Fatal("Missing ALPACA_API_BASE_URL environment variable") }
 
 	// Create request

@@ -104,8 +104,8 @@ func makeTrade(newsItem NewsMessage){
 	tradeSignal, _ := getTradeSignalsFromSpecificNewsArticle("Headline: " + newsItem.Headline + "Summary: " + newsItem.Summary)
 	log.Printf("Trade signal from AI:\nTicker: " + tradeSignal.Ticker + "\nDirection: " + tradeSignal.Direction)
 	if tradeSignal.Ticker != "unsure" && tradeSignal.Direction != "unsure" {
-		createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "10", "0.03", "limit") // limit order example
-		//createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "100", "150.00", "market") // market order example
+		//createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "10", "0.03", "limit") // limit order example
+		createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "100", "150.00", "market") // market order example
 	}
 }
 

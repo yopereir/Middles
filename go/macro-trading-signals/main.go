@@ -10,7 +10,7 @@ func getTradeSignalsFromSpecificNewsArticle(articleText string) (TradeSignal, er
 	if articleText =="" {
 		log.Fatal("Missing news article.")
 	}
-	tradeSignal, err := getInference(articleText, "gemini-2.0-flash")
+	tradeSignal, err := getInference(articleText, "gemma-3-27b-it")
 	if err != nil {
 		log.Fatal("Error getting inference:", err)
 	}

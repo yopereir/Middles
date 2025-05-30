@@ -23,6 +23,7 @@ type NewsMessage struct {
 	T        string   `json:"T"`
 	Headline string   `json:"headline"`
 	Summary  string   `json:"summary"`
+	Content  string   `json:"content"`
 	Symbols  []string `json:"symbols"`
 }
 func connectAndListen(apiKey, apiSecret string, done chan struct{}) {
@@ -101,7 +102,7 @@ func handleMessage(message []byte) {
 }
 
 func makeTrade(newsItem NewsMessage){
-	tradeSignal, _ := getTradeSignalsFromSpecificNewsArticle("Headline: " + newsItem.Headline + "Summary: " + newsItem.Summary)
+	tradeSignal, _ := getTradeSignalsFromSpecificNewsArticle("Headline: " + newsItem.Headline + "Summary: " + newsItem.Summary + "Content: " + newsItem.Content)
 	log.Printf("Trade signal from AI:\nTicker: " + tradeSignal.Ticker + "\nDirection: " + tradeSignal.Direction)
 	if tradeSignal.Ticker != "unsure" && tradeSignal.Direction != "unsure" {
 		//createAlpacaTrade(tradeSignal.Ticker, tradeSignal.Direction, "10", "0.03", "limit") // limit order example

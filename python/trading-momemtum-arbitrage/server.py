@@ -29,10 +29,17 @@ def get_nearest_friday():
     
     nearest_friday = today + timedelta(days=days_until_friday)
     
-    return nearest_friday.strftime("%y%m%d")
+    return nearest_friday.strftime("%Y-%m-%d")
 
-def getOptionCode(symbol, expirationDate, strikePrice, optionType='C'):
-    return f"{symbol.upper()}{expirationDate}{optionType}00{str(float(strikePrice)*10).replace(".","")}0"
+def get_option_code(symbol='AAPL', call_or_put='C', strike_price=123.45, expiration_date="2025-06-20"):
+    # Format parts
+    root = symbol  # pad with spaces to 6 chars
+    date_part = expiration_date.replace('-', '')[2:]  # get YYMMDD
+    cp = call_or_put.upper()
+    strike = int(round(strike_price * 1000))  # convert to integer with 3 decimal precision
+    strike_part = f"{strike:08d}"
+
+    return f"{root}{date_part}{cp}{strike_part}"
 
 # Get valid stock prices
 url = "https://data.alpaca.markets/v1beta1/screener/stocks/movers?top="+LIMIT
@@ -55,7 +62,7 @@ for item in gainers:
     print(f"{item['symbol']}: {item['percent_change']}%")
     print("Strike Price before news: "+ strikePrice)
     print("Max Expiration Date: "+ expirationDate)
-    print(f"Option code: {getOptionCode(symbol, expirationDate, strikePrice)}")
+    print(f"Option code: {get_option_code(symbol, 'P', float(strikePrice), expirationDate)}")
 print("\nTop Losers:")
 for item in losers:
     symbol = item['symbol']
@@ -65,4 +72,4 @@ for item in losers:
     print("Price before news: "+ str(item['price']-item['change']))
     print("Strike Price before news: "+ strikePrice)
     print("Max Expiration Date: "+ expirationDate)
-    print(f"Option code: {getOptionCode(symbol, expirationDate, strikePrice)}")
+    print(f"Option code: {get_option_code(symbol, 'C', float(strikePrice), expirationDate)}")

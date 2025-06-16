@@ -1,4 +1,5 @@
 import os, requests, math
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # LOAD ENVIRONMENT VARIABLES
@@ -16,12 +17,14 @@ headers = {
 }
 
 def is_options_available(ticker_symbol):
-    """
-    Check if options are available for the given ticker.
-    """
     url = f"https://data.alpaca.markets/v1beta1/options/snapshots/{ticker_symbol}?feed={FEED}&limit=1"
     response = requests.get(url, headers=headers)
-    return response.status_code != 400 and response.json()['snapshots'] != {}
+    return response.status_code == 200 and response.json()['snapshots'] != {}
+
+def add_days_to_date(date, days):
+    date_obj = datetime.strptime(date, '%Y-%m-%d')
+    new_date = date_obj + timedelta(days=days)
+    return new_date.strftime('%Y-%m-%d')
 
 # Get valid stock prices
 url = "https://data.alpaca.markets/v1beta1/screener/stocks/movers?top="+LIMIT

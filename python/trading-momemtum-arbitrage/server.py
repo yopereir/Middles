@@ -1,5 +1,5 @@
 import os, requests, math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from dotenv import load_dotenv
 
 # LOAD ENVIRONMENT VARIABLES
@@ -21,10 +21,18 @@ def is_options_available(ticker_symbol):
     response = requests.get(url, headers=headers)
     return response.status_code == 200 and response.json()['snapshots'] != {}
 
-def add_days_to_date(date, days):
-    date_obj = datetime.strptime(date, '%Y-%m-%d')
-    new_date = date_obj + timedelta(days=days)
-    return new_date.strftime('%Y-%m-%d')
+def get_nearest_friday():
+    today = date.today()
+    weekday = today.weekday()
+    
+    days_until_friday = (4 - weekday) % 7
+    
+    nearest_friday = today + timedelta(days=days_until_friday)
+    
+    return nearest_friday.strftime("%y%m%d")
+
+def getOptionCode(symbol, expirationDate, strikePrice, optionType='C'):
+    return f"{symbol.upper()}{expirationDate}{optionType}00{str(float(strikePrice)*10).replace(".","")}0"
 
 # Get valid stock prices
 url = "https://data.alpaca.markets/v1beta1/screener/stocks/movers?top="+LIMIT
@@ -41,11 +49,20 @@ if not gainers or not losers:
 # Filtered gainers and losers
 print("Top Gainers:")
 for item in gainers:
+    symbol = item['symbol']
+    expirationDate = get_nearest_friday()
+    strikePrice = str(math.floor((item['price']-item['change'])*2)/2)
     print(f"{item['symbol']}: {item['percent_change']}%")
-    print("Price before news: "+ str(item['price']-item['change']))
-    print("Strike Price before news: "+ str(math.floor((item['price']-item['change'])*2)/2))
+    print("Strike Price before news: "+ strikePrice)
+    print("Max Expiration Date: "+ expirationDate)
+    print(f"Option code: {getOptionCode(symbol, expirationDate, strikePrice)}")
 print("\nTop Losers:")
 for item in losers:
+    symbol = item['symbol']
+    expirationDate = get_nearest_friday()
+    strikePrice = str(math.ceil((item['price']-item['change'])*2)/2)
     print(f"{item['symbol']}: {item['percent_change']}%")
     print("Price before news: "+ str(item['price']-item['change']))
-    print("Strike Price before news: "+ str(math.ceil((item['price']-item['change'])*2)/2))
+    print("Strike Price before news: "+ strikePrice)
+    print("Max Expiration Date: "+ expirationDate)
+    print(f"Option code: {getOptionCode(symbol, expirationDate, strikePrice)}")

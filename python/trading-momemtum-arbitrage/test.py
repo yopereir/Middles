@@ -8,8 +8,10 @@ ALPACA_KEY = os.getenv('ALPACA_API_KEY')
 ALPACA_SECRET = os.getenv('ALPACA_API_SECRET')
 ALPHA_VANTAGE_KEY = os.getenv('ALPHA_VANTAGE_KEY')
 FEED = os.getenv('ALPACA_FEED', 'indicative')
-TICKER = os.getenv('ALPACA_TICKER', 'SOGP')
+TICKER = os.getenv('ALPACA_TICKER', 'SATS')
 LIMIT = os.getenv('ALPACA_LIMIT', '1')
+EXPIRATION_DATE="2025-06-20"
+STRIKE_PRICE=17
 
 headers = {
     "accept": "application/json",
@@ -18,6 +20,6 @@ headers = {
 }
 
 # SETUP STOCK PRICE REQUEST
-url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={TICKER}&apikey={ALPHA_VANTAGE_KEY}&time_from=2025061"
+url = f"https://data.alpaca.markets/v1beta1/options/snapshots/{TICKER}?feed={FEED}&limit=2&strike_price_gte={STRIKE_PRICE}&strike_price_lte={STRIKE_PRICE}&expiration_date_lte={EXPIRATION_DATE}"
 response = requests.get(url, headers=headers)
 print(response.json())

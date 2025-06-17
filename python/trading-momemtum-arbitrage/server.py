@@ -16,23 +16,23 @@ headers = {
     "APCA-API-SECRET-KEY": ALPACA_SECRET
 }
 
-def is_options_available(ticker_symbol):
-    url = f"https://data.alpaca.markets/v1beta1/options/snapshots/{ticker_symbol}?feed={FEED}&limit=1"
+def is_option_available(item, call_or_put='C'):
+    symbol = item['symbol']
+    expirationDate = get_nearest_friday()
+    strikePrice = str(math.floor((item['price']-item['change'])*2)/2)
+    optionSymbol = get_option_code(symbol, call_or_put, float(strikePrice), expirationDate)
+    url = f"https://data.alpaca.markets/v1beta1/options/snapshots?symbols={optionSymbol}&feed={FEED}&limit=1"
     response = requests.get(url, headers=headers)
     return response.status_code == 200 and response.json()['snapshots'] != {}
 
 def get_nearest_friday():
     today = date.today()
     weekday = today.weekday()
-    
     days_until_friday = (4 - weekday) % 7
-    
     nearest_friday = today + timedelta(days=days_until_friday)
-    
     return nearest_friday.strftime("%Y-%m-%d")
 
 def get_option_code(symbol='AAPL', call_or_put='C', strike_price=123.45, expiration_date="2025-06-20"):
-    # Format parts
     root = symbol  # pad with spaces to 6 chars
     date_part = expiration_date.replace('-', '')[2:]  # get YYMMDD
     cp = call_or_put.upper()
@@ -47,9 +47,9 @@ response = requests.get(url, headers=headers)
 if response.status_code != 200:
     print("Error fetching stock prices: ", response.status_code)
     exit(1)
-gainers = sorted([item for item in response.json().get('gainers', []) if is_options_available(item['symbol'])], key=lambda x: x['percent_change'], reverse=True)
-losers = sorted([item for item in response.json().get('losers', []) if is_options_available(item['symbol'])], key=lambda x: x['percent_change'], reverse=True)
-if not gainers or not losers:
+gainers = sorted([item for item in response.json().get('gainers', []) if is_option_available(item, 'P')], key=lambda x: x['percent_change'], reverse=True)
+losers = sorted([item for item in response.json().get('losers', []) if is_option_available(item, 'C')], key=lambda x: x['percent_change'], reverse=True)
+if not gainers and not losers:
     print("No gainers or losers data found.")
     exit(1)
 

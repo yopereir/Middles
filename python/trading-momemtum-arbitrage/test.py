@@ -15,7 +15,6 @@ EXPIRATION_DATE="2025-06-20"
 STRIKE_PRICE=17
 
 OPTIONS_SYMBOL = "RUN250620C00010000"
-ALPACA_BASE_URL = "https://paper-api.alpaca.markets/v1beta1"
 
 headers = {
     "accept": "application/json",
@@ -36,5 +35,8 @@ payload = {
 }
 
 # SETUP STOCK PRICE REQUEST
-response = requests.post(f"{ALPACA_BASE_URL}/options/orders", headers=headers, data=json.dumps(payload))
-print(response.json(), response.status_code)
+# Get account balance
+response = requests.get(f"{ALPACA_BASE_URL}/account", headers=headers)
+remainingBalance = requests.get(f"{ALPACA_BASE_URL}/account", headers=headers).json()['cash']
+#response = requests.post(f"{ALPACA_BASE_URL}/options/orders", headers=headers, data=json.dumps(payload))
+print(response.json()['cash'], response.status_code)

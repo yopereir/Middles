@@ -11,7 +11,7 @@ ALPACA_DATA_URL = os.getenv('ALPACA_DATA_URL')
 ALPACA_KEY = os.getenv('ALPACA_API_KEY')
 ALPACA_SECRET = os.getenv('ALPACA_API_SECRET')
 FEED = os.getenv('ALPACA_FEED', 'indicative')
-LIMIT = os.getenv('ALPACA_LIMIT', '10')
+LIMIT = os.getenv('ALPACA_LIMIT', '50')
 RISK_FREE_RATE = float(os.getenv('RISK_FREE_RATE', '0.05'))
 
 # Ensure essential environment variables are loaded
@@ -172,11 +172,7 @@ def calculate_option_details(item: dict, call_or_put: str) -> dict or None:
         print(f"Could not calculate implied volatility for {option_symbol}: {e}. Skipping.")
         implied_volatility = None # Or np.nan if you prefer pandas/numpy
     
-    sharpe_ratio = calculate_sharpe_ratio(
-            item['option_premium'],
-            RISK_FREE_RATE, # Using the global RISK_FREE_RATE
-            item['implied_volatility']
-        )
+
     
     # Create a new dictionary to avoid modifying the original 'item' in place unnecessarily
     # and to ensure all required keys are present
@@ -189,7 +185,6 @@ def calculate_option_details(item: dict, call_or_put: str) -> dict or None:
     processed_item['time_to_expiration_days'] = time_to_expiration_days
     processed_item['time_to_expiration_years'] = time_to_expiration_years
     processed_item['implied_volatility'] = implied_volatility
-    processed_item['sharpe_ratio'] = sharpe_ratio
 
     return processed_item
 
@@ -241,46 +236,38 @@ def get_top_movers():
     return processed_gainers, processed_losers
 
 # Example of how to use this module
-gainers, losers = get_top_movers()
-print("\n--- Processed Top Gainers (with Put Option Info and Sharpe Ratio) ---")
-if gainers:
-    for item in gainers:
-        print(f"Symbol: {item['symbol']} ({item['percent_change']}%)")
-        print(f"  Current Stock Price: {item['price']}")
-        print(f"  Strike Price (P): {item['strike_price_float']}")
-        print(f"  Expiration Date: {item['expiration_date']}")
-        print(f"  Option Code (Put): {item['option_symbol']}")
-        print(f"  Option Premium: {item['option_premium']:.2f}")
-        if item['implied_volatility'] is not None:
-            print(f"  Implied Volatility: {item['implied_volatility']:.4f} ({(item['implied_volatility']*100):.2f}%)")
-        else:
-            print("  Implied Volatility: N/A")
-        if item['sharpe_ratio'] is not None:
-            print(f"  Sharpe Ratio (Conceptual): {item['sharpe_ratio']:.4f}")
-        else:
-            print("  Sharpe Ratio: N/A (Volatility is zero)")
+# gainers, losers = get_top_movers()
+# print("\n--- Processed Top Gainers (with Put Option Info and Sharpe Ratio) ---")
+# if gainers:
+#     for item in gainers:
+#         print(f"Symbol: {item['symbol']} ({item['percent_change']}%)")
+#         print(f"  Current Stock Price: {item['price']}")
+#         print(f"  Strike Price (P): {item['strike_price_float']}")
+#         print(f"  Expiration Date: {item['expiration_date']}")
+#         print(f"  Option Code (Put): {item['option_symbol']}")
+#         print(f"  Option Premium: {item['option_premium']:.2f}")
+#         if item['implied_volatility'] is not None:
+#             print(f"  Implied Volatility: {item['implied_volatility']:.4f} ({(item['implied_volatility']*100):.2f}%)")
+#         else:
+#             print("  Implied Volatility: N/A")
 
-        print("-" * 30)
-else:
-    print("No gainers found with valid put options.")
+#         print("-" * 30)
+# else:
+#     print("No gainers found with valid put options.")
 
-print("\n--- Processed Top Losers (with Call Option Info and Sharpe Ratio) ---")
-if losers:
-    for item in losers:
-        print(f"Symbol: {item['symbol']} ({item['percent_change']:.2f}%)")
-        print(f"  Current Stock Price: {item['price']}")
-        print(f"  Strike Price (C): {item['strike_price_float']}")
-        print(f"  Expiration Date: {item['expiration_date']}")
-        print(f"  Option Code (Call): {item['option_symbol']}")
-        print(f"  Option Premium: {item['option_premium']:.2f}")
-        if item['implied_volatility'] is not None:
-            print(f"  Implied Volatility: {item['implied_volatility']:.4f} ({(item['implied_volatility']*100):.2f}%)")
-        else:
-            print("  Implied Volatility: N/A")
-        if item['sharpe_ratio'] is not None:
-            print(f"  Sharpe Ratio (Conceptual): {item['sharpe_ratio']:.4f}")
-        else:
-            print("  Sharpe Ratio: N/A (Volatility is zero)")
-        print("-" * 30)
-else:
-    print("No losers found with valid call options.")
+# print("\n--- Processed Top Losers (with Call Option Info and Sharpe Ratio) ---")
+# if losers:
+#     for item in losers:
+#         print(f"Symbol: {item['symbol']} ({item['percent_change']:.2f}%)")
+#         print(f"  Current Stock Price: {item['price']}")
+#         print(f"  Strike Price (C): {item['strike_price_float']}")
+#         print(f"  Expiration Date: {item['expiration_date']}")
+#         print(f"  Option Code (Call): {item['option_symbol']}")
+#         print(f"  Option Premium: {item['option_premium']:.2f}")
+#         if item['implied_volatility'] is not None:
+#             print(f"  Implied Volatility: {item['implied_volatility']:.4f} ({(item['implied_volatility']*100):.2f}%)")
+#         else:
+#             print("  Implied Volatility: N/A")
+#         print("-" * 30)
+# else:
+#     print("No losers found with valid call options.")

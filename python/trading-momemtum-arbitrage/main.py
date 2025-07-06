@@ -1,5 +1,5 @@
 import os, requests, json
-from createOptionsTrade import create_option_order
+from createTrade import create_order
 from getTopMovers import get_top_movers
 
 
@@ -15,6 +15,15 @@ if gainers:
         print(f"  Option Premium: {item['option_premium']:.2f}")
         if item['implied_volatility'] is not None:
             print(f"  Implied Volatility: {item['implied_volatility']:.4f} ({(item['implied_volatility']*100):.2f}%)")
+            print("--- Attempting to place order ---")
+            order_result = create_order(
+                trade_symbol=f"{item['option_symbol']}",
+                quantity=1,
+                side="sell",
+                limit_price=f"{item['option_premium']:.2f}"
+            )
+            print("\nOrder Result:")
+            print(json.dumps(order_result, indent=2))
         else:
             print("  Implied Volatility: N/A")
 
@@ -33,6 +42,15 @@ if losers:
         print(f"  Option Premium: {item['option_premium']:.2f}")
         if item['implied_volatility'] is not None:
             print(f"  Implied Volatility: {item['implied_volatility']:.4f} ({(item['implied_volatility']*100):.2f}%)")
+            print("--- Attempting to place order ---")
+            order_result = create_order(
+                trade_symbol=f"{item['option_symbol']}",
+                quantity=1,
+                side="sell",
+                limit_price=f"{item['option_premium']:.2f}"
+            )
+            print("\nOrder Result:")
+            print(json.dumps(order_result, indent=2))
         else:
             print("  Implied Volatility: N/A")
         print("-" * 30)

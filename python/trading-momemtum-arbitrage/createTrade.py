@@ -12,8 +12,8 @@ ALPACA_FEED = os.getenv('ALPACA_FEED', 'indicative')
 if not all([ALPACA_ACCOUNT_URL, ALPACA_KEY, ALPACA_SECRET, ALPACA_FEED]):
     raise EnvironmentError("One or more Alpaca API environment variables are not set.")
 
-def create_option_order(
-    options_symbol: str,
+def create_order(
+    trade_symbol: str,
     quantity: int,
     side: str,  # "buy" or "sell"
     limit_price: float,
@@ -21,10 +21,10 @@ def create_option_order(
     time_in_force: str = "day"  # Default to "day"
 ) -> dict:
     """
-    Places an options trade order with Alpaca.
+    Places an stock or option order with Alpaca.
 
     Args:
-        options_symbol (str): The symbol of the option contract (e.g., "SPY250630C00345000").
+        trade_symbol (str): The symbol of the option contract (e.g., "SPY250630C00345000").
         quantity (int): The number of option contracts to trade.
         side (str): The side of the order ("buy" or "sell").
         limit_price (float): The limit price (premium) for the option order.
@@ -43,7 +43,7 @@ def create_option_order(
     }
 
     payload = {
-        "symbol": options_symbol,
+        "symbol": trade_symbol,
         "qty": str(quantity),  # Quantity needs to be a string
         "side": side,
         "type": order_type,
@@ -85,8 +85,8 @@ def create_option_order(
 
 # --- Example Usage ---
 # print("--- Attempting to place a BUY order ---")
-# order_result = create_option_order(
-#     options_symbol="SPY250630C00345000",
+# order_result = create_order(
+#     trade_symbol="SPY250630C00345000",
 #     quantity=1,
 #     side="buy",
 #     limit_price=0.01

@@ -1,6 +1,6 @@
 import os, requests, json
-from createTrade import create_order
-from getTopMovers import get_top_movers
+from utils.createTrade import create_order
+from utils.getTopMovers import get_top_movers
 
 
 gainers, losers = get_top_movers()

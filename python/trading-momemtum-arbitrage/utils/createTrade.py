@@ -47,9 +47,11 @@ def create_order(
         "qty": str(quantity),  # Quantity needs to be a string
         "side": side,
         "type": order_type,
-        "limit_price": str(limit_price), # Limit price needs to be a string
         "time_in_force": time_in_force,
     }
+
+    if order_type == "limit":
+        payload["limit_price"] = str(limit_price) # Limit price needs to be a string
 
     try:
         # Construct the full URL for the orders endpoint

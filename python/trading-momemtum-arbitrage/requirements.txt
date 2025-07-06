@@ -1,4 +1,5 @@
 dotenv
 requests
 bs4
+google-generativeai
 py_vollib==1.0.1  # After install, patch py_lets_be_rational/constants.py to remove _testcapi

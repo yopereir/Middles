@@ -3,7 +3,7 @@ from utils.createTrade import create_order
 from utils.getTopMovers import get_top_movers
 
 
-gainers, losers = get_top_movers()
+gainers, losers = get_top_movers(50)
 print("\n--- Processed Top Gainers (with Put Option Info and Sharpe Ratio) ---")
 if gainers:
     for item in gainers:

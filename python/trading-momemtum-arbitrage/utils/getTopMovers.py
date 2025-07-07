@@ -8,15 +8,15 @@ from py_vollib.black_scholes.implied_volatility import implied_volatility as bsi
 # LOAD ENVIRONMENT VARIABLES
 load_dotenv()
 ALPACA_DATA_URL = os.getenv('ALPACA_DATA_URL')
+ALPACA_DATA_BETA_URL = os.getenv('ALPACA_DATA_BETA_URL')
 ALPACA_KEY = os.getenv('ALPACA_API_KEY')
 ALPACA_SECRET = os.getenv('ALPACA_API_SECRET')
 FEED = os.getenv('ALPACA_FEED', 'indicative')
-LIMIT = os.getenv('ALPACA_LIMIT', '50')
 RISK_FREE_RATE = float(os.getenv('RISK_FREE_RATE', '0.05'))
 
 # Ensure essential environment variables are loaded
-if not all([ALPACA_DATA_URL, ALPACA_KEY, ALPACA_SECRET]):
-    raise EnvironmentError("One or more Alpaca API environment variables are not set (ALPACA_DATA_URL, ALPACA_API_KEY, ALPACA_API_SECRET).")
+if not all([ALPACA_DATA_URL, ALPACA_DATA_BETA_URL, ALPACA_KEY, ALPACA_SECRET]):
+    raise EnvironmentError("One or more Alpaca API environment variables are not set (ALPACA_DATA_URL, ALPACA_DATA_BETA_URL, ALPACA_API_KEY, ALPACA_API_SECRET).")
 
 headers = {
     "accept": "application/json",
@@ -188,7 +188,7 @@ def calculate_option_details(item: dict, call_or_put: str) -> dict or None:
 
     return processed_item
 
-def get_top_movers():
+def get_top_movers(limit: int):
     """
     Fetches top stock gainers and losers from Alpaca and enriches them
     with relevant options data (strike, premium, implied volatility).
@@ -197,7 +197,8 @@ def get_top_movers():
         tuple: A tuple containing two lists: (gainers, losers).
                Each list contains dictionaries with stock and calculated option details.
     """
-    url = f"{ALPACA_DATA_URL}/screener/stocks/movers?top={LIMIT}"
+    url = f"{ALPACA_DATA_BETA_URL}/screener/stocks/movers?top={limit}"
+    print(url)
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:

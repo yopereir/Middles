@@ -36,7 +36,7 @@ payload = {
 
 # SETUP STOCK PRICE REQUEST
 # Get account balance
-response = requests.get(f"{ALPACA_BASE_URL}/account", headers=headers)
-remainingBalance = requests.get(f"{ALPACA_BASE_URL}/account", headers=headers).json()['cash']
+response = requests.get(f"{ALPACA_URL}/account", headers=headers)
+remainingBalance = requests.get(f"{ALPACA_URL}/account", headers=headers).json()['buying_power']
 #response = requests.post(f"{ALPACA_BASE_URL}/options/orders", headers=headers, data=json.dumps(payload))
-print(response.json()['cash'], response.status_code)
+print(response.json()['buying_power'], response.status_code)

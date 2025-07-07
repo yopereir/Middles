@@ -2,7 +2,7 @@ import time, math
 from utils.createTrade import create_order
 from utils.getSnPFeed import fetch_press_releases
 from utils.getAIResponse import query_gemini, extract_json_from_text
-from utils.getAccountDetails import getAccountBalance
+from utils.getAccountDetails import getAccountBalance, getAccountKey
 from utils.getStockDetails import getAskingPrice
 
 POLL_INTERVAL = 11
@@ -13,6 +13,7 @@ max_investment_unit=float(principal_balance)*0.05
 
 def main():
     global latest_processessed_press_release_id
+    print(f"Using Account Key: {getAccountKey()}")
     while True:
         try:
             # Fetch news articles

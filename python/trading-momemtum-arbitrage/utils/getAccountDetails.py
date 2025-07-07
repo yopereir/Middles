@@ -17,3 +17,6 @@ headers = {
 
 def getAccountBalance() -> str:
     return requests.get(f"{ALPACA_ACCOUNT_URL}/account", headers=headers).json()['buying_power']
+
+def getAccountKey() -> str:
+    return ALPACA_KEY

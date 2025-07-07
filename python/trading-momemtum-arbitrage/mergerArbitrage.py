@@ -1,7 +1,7 @@
 import asyncio, websockets, math, os, json
 from dotenv import load_dotenv
 from utils.getAIResponse import query_gemini, extract_json_from_text
-from utils.getAccountDetails import getAccountBalance
+from utils.getAccountDetails import getAccountBalance, getAccountKey
 from utils.getStockDetails import getAskingPrice
 
 load_dotenv()
@@ -44,7 +44,7 @@ async def listen_to_news():
         await websocket.send(json.dumps(subscribe_message))
         subscribe_response = await websocket.recv()
         print(f"Subscription Response: {subscribe_response}")
-
+        print(f"Using Account Key: {getAccountKey()}")
         try:
             while True:
                 message = await websocket.recv()

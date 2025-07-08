@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 # LOAD ENVIRONMENT VARIABLES once when the module is imported
 load_dotenv()
-ALPACA_ACCOUNT_URL = os.getenv('ALPACA_ACCOUNT_URL')
+ALPACA_ACCOUNT_URL = os.getenv('ALPACA_ACCOUNT_URL', 'https://paper-api.alpaca.markets/v2')
 ALPACA_KEY = os.getenv('ALPACA_API_KEY')
 ALPACA_SECRET = os.getenv('ALPACA_API_SECRET')
 ALPACA_FEED = os.getenv('ALPACA_FEED', 'indicative')

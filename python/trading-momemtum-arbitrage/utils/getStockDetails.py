@@ -2,7 +2,7 @@ import os, requests, json
 from dotenv import load_dotenv
 
 load_dotenv()
-ALPACA_DATA_URL = os.getenv('ALPACA_DATA_URL')
+ALPACA_DATA_URL = os.getenv('ALPACA_DATA_URL','https://data.alpaca.markets/v2')
 ALPACA_KEY = os.getenv('ALPACA_API_KEY')
 ALPACA_SECRET = os.getenv('ALPACA_API_SECRET')
 if not all([ALPACA_DATA_URL, ALPACA_KEY, ALPACA_SECRET]):

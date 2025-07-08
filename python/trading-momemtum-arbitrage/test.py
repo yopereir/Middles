@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 # LOAD ENVIRONMENT VARIABLES
 load_dotenv()
-ALPACA_URL = os.getenv('ALPACA_ACCOUNT_URL')
+ALPACA_URL = os.getenv('ALPACA_ACCOUNT_URL', 'https://paper-api.alpaca.markets/v2')
 ALPACA_BASE_URL = os.getenv('ALPACA_BASE_URL')
 ALPACA_KEY = os.getenv('ALPACA_API_KEY')
 ALPACA_SECRET = os.getenv('ALPACA_API_SECRET')

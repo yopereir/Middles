@@ -7,8 +7,8 @@ from py_vollib.black_scholes.implied_volatility import implied_volatility as bsi
 
 # LOAD ENVIRONMENT VARIABLES
 load_dotenv()
-ALPACA_DATA_URL = os.getenv('ALPACA_DATA_URL')
-ALPACA_DATA_BETA_URL = os.getenv('ALPACA_DATA_BETA_URL')
+ALPACA_DATA_URL = os.getenv('ALPACA_DATA_URL','https://data.alpaca.markets/v2')
+ALPACA_DATA_BETA_URL = os.getenv('ALPACA_DATA_BETA_URL','https://data.alpaca.markets/v1beta1')
 ALPACA_KEY = os.getenv('ALPACA_API_KEY')
 ALPACA_SECRET = os.getenv('ALPACA_API_SECRET')
 FEED = os.getenv('ALPACA_FEED', 'indicative')

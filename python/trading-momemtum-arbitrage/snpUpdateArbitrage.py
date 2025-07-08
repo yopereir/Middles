@@ -5,7 +5,7 @@ from utils.getAIResponse import query_gemini, extract_json_from_text
 from utils.getAccountDetails import getAccountBalance, getAccountKey
 from utils.getStockDetails import getAskingPrice
 
-POLL_INTERVAL = 11
+POLL_INTERVAL = 61
 latest_processessed_press_release_id = None
 latest_press_release = {}
 principal_balance=getAccountBalance()

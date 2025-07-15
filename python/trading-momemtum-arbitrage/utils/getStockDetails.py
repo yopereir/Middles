@@ -17,3 +17,9 @@ headers = {
 
 def getAskingPrice(ticker: str) -> str:
     return requests.get(f"{ALPACA_DATA_URL}/stocks/quotes/latest?symbols={ticker}", headers=headers).json()['quotes'][ticker]['ap']
+
+def getBidPrice(ticker: str) -> str:
+    return requests.get(f"{ALPACA_DATA_URL}/stocks/quotes/latest?symbols={ticker}", headers=headers).json()['quotes'][ticker]['bp']
+
+def getLastTradePrice(ticker: str) -> str:
+    return requests.get(f"{ALPACA_DATA_URL}/stocks/trades/latest?symbols={ticker}", headers=headers).json()['trades'][ticker]['p']

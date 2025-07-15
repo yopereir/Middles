@@ -1,5 +1,6 @@
 import asyncio, websockets, math, os, json
 from dotenv import load_dotenv
+from utils.createTrade import create_order
 from utils.getAIResponse import query_gemini, extract_json_from_text
 from utils.getAccountDetails import getAccountBalance, getAccountKey
 from utils.getStockDetails import getAskingPrice
@@ -69,6 +70,9 @@ async def listen_to_news():
                             continue
                         sharesToBuy = math.floor((max_investment_unit if (max_investment_unit < float(getAccountBalance())) else getAccountBalance())/getAskingPrice(trade_signal['Ticker']))
                         print(sharesToBuy)
+                        # Create Alpaca trade
+                        order_response = create_order(trade_signal['Ticker'], sharesToBuy, trade_signal['Direction'], round(float(getAskingPrice(trade_signal['Ticker']))*1.01, 2), 'limit', 'day')
+                        print(f"Order Response: {order_response}")
                     else:
                         print(f"Received non-news message: {event}")
         except websockets.ConnectionClosed:

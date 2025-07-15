@@ -48,6 +48,7 @@ def create_order(
         "side": side,
         "type": order_type,
         "time_in_force": time_in_force,
+        "extended_hours": True if (order_type == 'limit' and time_in_force == 'day') else False,
     }
 
     if order_type == "limit":

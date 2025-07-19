@@ -24,11 +24,15 @@ def execute_trade_signal(trade_signal):
     if trade_signal['Direction'] == 'buy':
         sharesToBuy = math.floor((max_investment_unit if (max_investment_unit < float(getAccountBalance())) else getAccountBalance())/(getAskingPrice(trade_signal['Ticker']) if getAskingPrice(trade_signal['Ticker']) > 0 else getLastTradePrice(trade_signal['Ticker'])))
         print("Shares to buy: " + str(sharesToBuy))
-        create_order(trade_signal['Ticker'], sharesToBuy, trade_signal['Direction'], round(float(getAskingPrice(trade_signal['Ticker']))*1.01, 2), 'limit', 'day')
+        limitPrice = round(float(getLastTradePrice(trade_signal['Ticker']))*1.01, 2)
+        print("Limit Price: " + str(limitPrice))
+        create_order(trade_signal['Ticker'], sharesToBuy, trade_signal['Direction'], limitPrice, 'limit', 'day')
     elif trade_signal['Direction'] == 'sell':
         sharesToSell = math.floor((max_investment_unit if (max_investment_unit < float(getAccountBalance())) else getAccountBalance())/(getBidPrice(trade_signal['Ticker']) if getBidPrice(trade_signal['Ticker']) > 0 else getLastTradePrice(trade_signal['Ticker'])))
+        limitPrice = round(float(getLastTradePrice(trade_signal['Ticker']))*0.99, 2)
         print("Shares to sell: " + str(sharesToSell))
-        create_order(trade_signal['Ticker'], sharesToSell, trade_signal['Direction'], round(float(getAskingPrice(trade_signal['Ticker']))*0.99, 2), 'limit', 'day')
+        print("Limit Price: " + str(limitPrice))
+        create_order(trade_signal['Ticker'], sharesToSell, trade_signal['Direction'], limitPrice, 'limit', 'day')
 
 def main():
     global latest_processessed_press_release_id

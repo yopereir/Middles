@@ -44,7 +44,7 @@ def fetch_press_releases():
     # Update latest_seen_id
     if items:
         latest_seen_id = items[0].get("id")
-        return items[0]
+        return items[1]
 
 # Example to call from other functions
 def main():

@@ -12,6 +12,59 @@ ALPACA_FEED = os.getenv('ALPACA_FEED', 'indicative')
 if not all([ALPACA_ACCOUNT_URL, ALPACA_KEY, ALPACA_SECRET, ALPACA_FEED]):
     raise EnvironmentError("One or more Alpaca API environment variables are not set.")
 
+def create_credit_spread_order(buy_symbol: str, sell_symbol: str, quantity: int, limit_price: float, time_in_force: str = 'day') -> dict:
+    """
+    Places a multileg order with Alpaca for options trading.
+
+    """
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "APCA-API-KEY-ID": ALPACA_KEY,
+        "APCA-API-SECRET-KEY": ALPACA_SECRET
+    }
+
+    payload = {
+        "type": "limit",
+        "time_in_force": time_in_force,
+        "order_class": "mleg",
+        "limit_price": limit_price,
+        "qty": str(quantity),  # Quantity needs to be a string
+        "legs": [
+            {
+                "symbol": sell_symbol,
+                "ratio_qty": "1",
+                "side": "sell", # buy or sell
+                "position_intent": "sell_to_open",
+            },
+            {
+                "symbol": buy_symbol,
+                "ratio_qty": "1",
+                "side": "buy", # buy or sell
+                "position_intent": "buy_to_open",
+            }
+        ]
+    }
+
+    try:
+        # Construct the full URL for the orders endpoint
+        full_url = f"{ALPACA_ACCOUNT_URL}/orders"
+
+        response = requests.post(full_url, headers=headers, json=payload)
+        response.raise_for_status()  # Raise an exception for HTTP errors (4xx or 5xx)
+
+        return response.json()
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+        print(f"Response status code: {response.status_code}")
+        try:
+            error_details = response.json()
+            print(f"Alpaca Error Details: {json.dumps(error_details, indent=2)}")
+            return {"error": "HTTP Error", "details": error_details, "status_code": response.status_code}
+        except json.JSONDecodeError:
+            print(f"Alpaca Error Details: {response.text}")
+            return {"error": "HTTP Error", "details": response.text, "status_code": response.status_code}
+
 def create_order(
     trade_symbol: str,
     quantity: int,

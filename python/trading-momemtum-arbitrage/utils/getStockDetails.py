@@ -23,3 +23,6 @@ def getBidPrice(ticker: str) -> str:
 
 def getLastTradePrice(ticker: str) -> str:
     return requests.get(f"{ALPACA_DATA_URL}/stocks/trades/latest?symbols={ticker}", headers=headers).json()['trades'][ticker]['p']
+
+def getClosingPrice(ticker: str) -> str:
+    return requests.get(f"{ALPACA_DATA_URL}/stocks/snapshots?symbols={ticker}", headers=headers).json()[ticker]['prevDailyBar']['c']

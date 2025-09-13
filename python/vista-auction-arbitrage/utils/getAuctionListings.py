@@ -1,8 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import time
-import re
+import time, subprocess, re
 
 # ------------------ Step 1: Get main auction link ------------------
 def get_auction_links():
@@ -30,7 +29,6 @@ def get_auction_links():
 
 # ------------------ Step 2: Extract auctionSectionID ------------------
 def extract_auction_section_id(url):
-    import re
     match = re.search(r"/Event/Details/(\d+)", url)
     if match:
         return match.group(1)
@@ -87,23 +85,25 @@ def get_short_ending_listings(base_url, max_pages=10):
             except:
                 link = "Link not found"
 
-            # Extract countdown from first span inside p.time
+            # Extract countdown from p.time > span[data-action-time]
+            countdown_text = "N/A"
+            total_seconds = None
             try:
-                countdown_el = section.find_element(By.CSS_SELECTOR, "p.time span:first-child")
+                countdown_el = section.find_element(By.CSS_SELECTOR, "p.time span[data-action-time]")
                 countdown_text = countdown_el.text.strip()
                 total_seconds = parse_countdown(countdown_text)
             except:
-                total_seconds = None
+                pass
 
-            print(f"Listing {idx} | ID={listing_id} | Countdown={countdown_text if total_seconds else 'N/A'} | Link={link}")
+            print(f"Listing {idx} | ID={listing_id} | Countdown={countdown_text} | Link={link}")
 
-            # Track only 3–5 min listings
             if total_seconds is not None:
                 if 180 <= total_seconds <= 300:
                     saved_listings.append(link)
                 elif total_seconds > 300:
                     stop_pagination = True
                     break
+                # < 180 will just be ignored (not saved, not stopping)
 
         if stop_pagination:
             print("Found listing >5 minutes, stopping pagination.")
@@ -128,3 +128,4 @@ if __name__ == "__main__":
     print("\nListings with 3–5 minutes remaining:")
     for l in listings:
         print(l)
+        subprocess.Popen(["python", "./utils/tradeSignalAlgorithm.py", l])

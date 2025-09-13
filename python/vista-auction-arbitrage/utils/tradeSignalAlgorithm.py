@@ -2,7 +2,7 @@
 import sys, json, time, random, os
 from filelock import FileLock
 
-def create_trade_signal(listing_url):
+def create_trade_signal(listing_url): # Default returns {}
     unique_id = f"{int(time.time())}_{random.randint(1000, 9999)}"
     trade_signal = {
         "id": unique_id,

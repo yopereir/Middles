@@ -1,6 +1,32 @@
 # utils/tradeSignalAlgorithm.py
-import sys, json, time, random, os
+import sys, json, time, random, os, subprocess
 from filelock import FileLock
+
+def run_gemini_prompt(command: str, model: str = "gemini-2.5-flash"):
+    """
+    Runs a gemini cli prompt and returns (stdout, stderr, returncode)
+    """
+    try:
+        result = subprocess.run(
+            ["gemini", "--model", model, "--prompt", command],
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+        # Get the standard output and split it by newlines
+        stdout_lines = result.stdout.strip().split('\n')
+
+        # The URL is the last line of the output
+        if stdout_lines:
+            url_output = stdout_lines[-1].strip()
+            # Basic validation to ensure it looks like a URL
+            if url_output.startswith("http"):
+                return url_output, result.stderr, result.returncode
+
+        # If the URL is not found, return empty string with the original stderr and returncode
+        return "", result.stderr, result.returncode
+    except Exception as e:
+        raise RuntimeError(f"Error running command: {e}")
 
 def create_trade_signal(listing_url): # Default returns {}
     unique_id = f"{int(time.time())}_{random.randint(1000, 9999)}"
@@ -39,6 +65,8 @@ def main():
     trade_signal = create_trade_signal(listing_url)
     write_json_atomic("trade_signals.json", trade_signal)
     print(f"Generated trade signal: {trade_signal}")
+    stdout, stderr, code = run_gemini_prompt("This link "+listing_url+" is for an item on auction. This listing might have a URL to amazon for this product. If it does, show me only that link and nothing else. If it does not, return the string 'Not Found'")
+    print("Gemini Output:", stdout)
 
 if __name__ == "__main__":
     main()

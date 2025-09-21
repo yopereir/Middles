@@ -209,11 +209,11 @@ def get_short_ending_listings(base_url, max_pages=10, min_seconds=180, max_secon
 
 # ------------------ Public Function ------------------
 
-def fetch_auction_listings(keywords=[], negative_keywords=[]):
+def fetch_auction_listings(keywords=[], negative_keywords=[], max_pages=10, min_seconds=180, max_seconds=300, max_ratio=0.2):
     chosen_link = get_auction_links()
     auction_section_id = extract_auction_section_id(chosen_link)
     base_url = f"https://vistaauction.com/Event/Details/{auction_section_id}?ViewStyle=list&StatusFilter=active_only&SortFilterOptions=1&page="
-    listings = get_short_ending_listings(base_url)
+    listings = get_short_ending_listings(base_url, max_pages, min_seconds, max_seconds, max_ratio)
     filtered = []
     for item in listings:
         link = item.get("link") or ""

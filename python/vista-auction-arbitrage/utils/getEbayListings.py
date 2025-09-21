@@ -63,10 +63,11 @@ def scrape_ebay_sold_first_two_pages(product_name: str):
 
 
 # ---------------- Robust filter for last 60 days with average and lowest price ----------------
-def filter_recent_listings(listings, days=60):
+def filter_recent_listings(product_name = "", days=60):
     recent_listings = []
     now = datetime.now()
     numeric_prices = []
+    listings = scrape_ebay_sold_first_two_pages(product_name)
 
     for item in listings:
         date_text = item.get("date", "").strip()
@@ -114,7 +115,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     product_name = args.product
-    listings = scrape_ebay_sold_first_two_pages(product_name)
-    result = filter_recent_listings(listings, days=60)
+    result = filter_recent_listings(product_name, days=60)
 
     print(json.dumps(result, indent=2))

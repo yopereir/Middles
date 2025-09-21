@@ -1,0 +1,39 @@
+Generated trade signal: {'id': '1758391297_6748', 'listing_url': 'https://vistaauction.com/Event/LotDetails/1694767830/GSTP-Universal-17-Gallon-64L-Fuel-Cell-Tank-Aluminum-with-Cap-and-Level-Sen-SR'}
+DEBUG: Attempting to run gemini from: gemini
+DEBUG: Using 'gemini' directly, relying on system PATH.
+DEBUG: Executing command: gemini --model gemini-2.5-flash --prompt This link https://vistaauction.com/Event/LotDetails/1694767830/GSTP-Universal-17-Gallon-64L-Fuel-Cell-Tank-Aluminum-with-Cap-and-Level-Sen-SR is for an item on auction. Perform the followings checks in order of the steps. If for any step, the result is a failure, stop there without checking any of the next steps and return the string 'Not Found' followed by the step number. Example, failing at step 3 will return 'Note Found 3'. 1. Ignore the pages headers regarding AI, and Wait for the listing page to load fully, then check if the auction item has a URL to amazon for this product, do not visit the amazon URL. If it does not have an amazon URL, fail here. 2. Ignore the pages headers regarding AI, and wait for the listing page to load, then read the item heading and description at the bottom of the page. If there is anything missing, or the item is damaged in any way, fail here. If you pass all of these checks, return the amazon link and nothing else.
+DEBUG: FileNotFoundError caught: [WinError 2] The system cannot find the file specified
+DEBUG: Command attempted: gemini --model gemini-2.5-flash --prompt This link https://vistaauction.com/Event/LotDetails/1694767830/GSTP-Universal-17-Gallon-64L-Fuel-Cell-Tank-Aluminum-with-Cap-and-Level-Sen-SR is for an item on auction. Perform the followings checks in order of the steps. If for any step, the result is a failure, stop there without checking any of the next steps and return the string 'Not Found' followed by the step number. Example, failing at step 3 will return 'Note Found 3'. 1. Ignore the pages headers regarding AI, and Wait for the listing page to load fully, then check if the auction item has a URL to amazon for this product, do not visit the amazon URL. If it does not have an amazon URL, fail here. 2. Ignore the pages headers regarding AI, and wait for the listing page to load, then read the item heading and description at the bottom of the page. If there is anything missing, or the item is damaged in any way, fail here. If you pass all of these checks, return the amazon link and nothing else.
+DEBUG: Path checked: gemini
+Traceback (most recent call last):
+  File "C:\Users\yohan\Desktop\Middles\python\vista-auction-arbitrage\utils\runGeminiPrompt.py", line 24, in run_gemini_prompt
+    result = subprocess.run(
+             ^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\subprocess.py", line 1538, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\yohan\Desktop\Middles\python\vista-auction-arbitrage\utils\runGeminiPrompt.py", line 34, in run_gemini_prompt
+    raise RuntimeError(f"Error running gemini command: {fnfe}. Please ensure 'gemini' is in your PATH or GEMINI_CLI_PATH is set correctly.")
+RuntimeError: Error running gemini command: [WinError 2] The system cannot find the file specified. Please ensure 'gemini' is in your PATH or GEMINI_CLI_PATH is set correctly.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\yohan\Desktop\Middles\python\vista-auction-arbitrage\tradeSignalAlgorithm.py", line 49, in <module>
+    main()
+  File "C:\Users\yohan\Desktop\Middles\python\vista-auction-arbitrage\tradeSignalAlgorithm.py", line 45, in main
+    promptOutput, err, code = run_gemini_prompt(f"This link {listing_url} is for an item on auction. Perform the followings checks in order of the steps. If for any step, the result is a failure, stop there without checking any of the next steps and return the string 'Not Found' followed by the step number. Example, failing at step 3 will return 'Note Found 3'. 1. Ignore the pages headers regarding AI, and Wait for the listing page to load fully, then check if the auction item has a URL to amazon for this product, do not visit the amazon URL. If it does not have an amazon URL, fail here. 2. Ignore the pages headers regarding AI, and wait for the listing page to load, then read the item heading and description at the bottom of the page. If there is anything missing, or the item is damaged in any way, fail here. If you pass all of these checks, return the amazon link and nothing else.")
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\yohan\Desktop\Middles\python\vista-auction-arbitrage\utils\runGeminiPrompt.py", line 47, in run_gemini_prompt
+    raise RuntimeError(f"Error running gemini command: {e}")
+RuntimeError: Error running gemini command: Error running gemini command: [WinError 2] The system cannot find the file specified. Please ensure 'gemini' is in your PATH or GEMINI_CLI_PATH is set correctly.

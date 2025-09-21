@@ -1,0 +1,7 @@
+This link {listing_url} is for an item on auction. Perform the followings checks in order of the steps. If for any step, the answer is negative, return the string 'Not Found' followed by the step number. example failing at step 3 will return 'Note Found, 3'.
+1. Check if the auction item has a URL to amazon for this product. If it does not, fail here.
+2. Read the item heading and description. If there is anything missing, or the item is damaged in any way, fail here.
+3. Go to the amazon link from step 1, and check if the rating is above 4 starts. If not, fail here.
+4. Go to ebay and search for the item heading. Find at least 10 items that are similar looking. If you cannot find at least 10 items, fail here.
+5. Get the lowest price of all of those 10 items on ebay, and if that price is not at least 20% greater than the current bid price of the auction item, fail here.
+If you pass all of these checks, return the listing link and nothing else.

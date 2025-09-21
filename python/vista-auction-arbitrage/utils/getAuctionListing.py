@@ -1,3 +1,4 @@
+# Usage: python utils/getAuctionListing.py https://vistaauction.com/Event/LotDetails/1708581762/RELEANY-Area-Rugs-9x12-Washable-NonSlip-Floral-Vintage-Distress-Print-P-SR
 import argparse
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -33,9 +34,8 @@ def scrape_vistaauction_listing(url: str):
         subtitle_elem = driver.find_element(By.CSS_SELECTOR, "h4.detail__subtitle")
         subtitle_text = subtitle_elem.text.strip()  # e.g., "MSRP: $399.99  - New"
         msrp_match = re.search(r"MSRP:\s*\$([\d,.]+)", subtitle_text)
-        condition_match = re.search(r"-\s*(\w+)$", subtitle_text)
         msrp = float(msrp_match.group(1).replace(",", "")) if msrp_match else None
-        condition = condition_match.group(1) if condition_match else None
+        condition = "New" if "New" in subtitle_text or "new" in subtitle_text else None
     except:
         msrp = None
         condition = None
@@ -49,12 +49,12 @@ def scrape_vistaauction_listing(url: str):
 
     driver.quit()
 
-    return json.dumps({
+    return {
         "name": item_name,
         "msrp": msrp,
         "condition": condition,
         "quick_bid": quick_bid
-    }, indent=2)
+    }
 
 
 # ---------------- Command-line interface ----------------

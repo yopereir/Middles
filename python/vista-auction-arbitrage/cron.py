@@ -1,4 +1,4 @@
-# Usage: python cron.py --interval 180 --total_spent_file total_spent.txt --spending_limit 10000 --script tradeSignalAlgorithm.py -- --keywords bathroom,mower --negative_keywords shirt,jacket,coat,pant,jean,dress,bottle --max_seconds 300 --min_seconds 180 --max_ratio 0.2 --max_pages 10
+# Usage: python cron.py --interval 180 --total_spent_file total_spent.txt --spending_limit 10000 --script tradeSignalAlgorithm.py -- --keywords bathroom,mower --negative_keywords shirt,jacket,coat,pant,jean,dress,bottle,pillow,pendant --max_seconds 300 --min_seconds 180 --max_ratio 0.2 --max_pages 10
 import subprocess
 import time
 import argparse

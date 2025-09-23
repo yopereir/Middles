@@ -40,7 +40,7 @@ def custom_filter(item):
     if item.get("average_price") and item.get("quick_bid"):
         max_bid = item["quick_bid"] * (1 + profit_margin + vista_auction_commission + ebay_commission) \
                   + vista_auction_fee + shipping_fee + profit
-        if item["average_price"] > max_bid:
+        if item["average_price"] > max_bid and item["total_count"] > 10:
             # Add max_bid field to the item
             item["max_bid"] = max_bid
             return True
